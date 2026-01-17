@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Main – Start Now</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 20px;
+    }
+
+    h1 { margin-bottom: 5px; }
+    .user { color: #555; margin-bottom: 20px; }
+
+    .section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    .section p {
+      color: #555;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .moods button {
+      margin: 5px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background: #e0e7ff;
+    }
+
+    .moods button.active {
+      background: #4f46e5;
+      color: white;
+    }
+
+    button.action {
+      background: #4f46e5;
+      color: white;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button.secondary {
+      background: #9ca3af;
+      margin-left: 8px;
+    }
+
+    .task {
+      background: #eef2ff;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Start Now</h1>
+<div class="user" id="userInfo"></div>
+
+<!-- SECTION 1: MOOD -->
+<div class="section">
+  <h3>1. How are you feeling right now?</h3>
+  <p>Your current state helps us suggest the right kind of task.</p>
+  <div class="moods">
+    <button onclick="selectMood('Focused')">Focused</button>
+    <button onclick="selectMood('Low Energy')">Low Energy</button>
+    <button onclick="selectMood('Bored')">Bored</button>
+  </div>
+</div>
+
+<!-- SECTION 2: TASKS -->
+<div class="section">
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h3>2. What can you finish now?</h3>
+    <button class="action" onclick="goToAddTask()">Add Task</button>
+  </div>
+  <p>Only tasks mapped to your current mood are shown here.</p>
+
+  <div id="taskList"></div>
+</div>
+
+<!-- SECTION 3: DISTRACTION CONTROL -->
+<div class="section">
+  <h3>3. Control distractions (when you feel tempted)</h3>
+  <p>
+    Use this when you feel like opening distracting apps.
+    Set a purpose and a timer to stay aware.
+  </p>
+
+  <button class="action" onclick="location.href='distraction-session.html'">
+    🎯 Start Distraction Session
+  </button>
+</div>
+
+<!-- SECTION 4: PLAN & REFLECT -->
+<div class="section">
+  <h3>4. Plan & reflect (not now, later)</h3>
+  <p>
+    These features help you reduce procrastination over days,
+    not just moments.
+  </p>
+
+  <button class="action" onclick="location.href='future-tasks.html'">
+    📅 Exam & Future Plans
+  </button>
+  <br><br>
+
+  <button class="action" onclick="location.href='diary.html'">
+    📓 Daily Reflection
+  </button>
+  <br><br>
+
+  <button class="action" onclick="location.href='notifications.html'">
+    ⚠️ Reminder & Warning Settings
+  </button>
+</div>
+
+<script>
+  let selectedMood = "";
+  let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+  function selectMood(mood) {
+    selectedMood = mood;
+    document.querySelectorAll(".moods button").forEach(btn => {
+      btn.classList.toggle("active", btn.innerText === mood);
+    });
+    renderTasks();
+  }
+
+  function goToAddTask() {
+    localStorage.setItem("currentMood", selectedMood);
+    window.location.href = "add-task.html";
+  }
+
+  function renderTasks() {
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    if (!selectedMood) {
+      list.innerHTML = "<p>Select a mood to see tasks.</p>";
+      return;
+    }
+
+    const filtered = tasks.filter(
+      t => t.moods.includes(selectedMood) && !t.completed
+    );
+
+    if (filtered.length === 0) {
+      list.innerHTML = `
+        <p>No tasks mapped to this mood.</p>
+        <button class="action" onclick="goToAddTask()">Add Task</button>
+      `;
+      return;
+    }
+
+    filtered.forEach((t, index) => {
+      const div = document.createElement("div");
+      div.className = "task";
+      div.innerHTML = `
+        <strong>${t.name}</strong><br>
+        Start with: ${t.start}<br>
+        Expected time: ${t.time} minutes<br><br>
+        <button class="action" onclick="markTaskDone(${index})">
+          ✅ Task Done (Add proof)
+        </button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  function markTaskDone(index) {
+    alert(
+      "Next step:\n• Ask for short description / learning\n• Optional image proof\n(This will be added next)"
+    );
+    tasks[index].completed = true;
+    tasks[index].completedAt = new Date().toISOString();
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+    renderTasks();
+  }
+</script>
+
+<script type="module">
+  import { onAuthStateChanged } 
+  from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+  onAuthStateChanged(window.auth, (user) => {
+    if (!user) {
+      window.location.href = "signin.html";
+    } else {
+      document.getElementById("userInfo").innerText =
+        "Welcome. Focus on finishing one small thing.";
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Daily Reflection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 20px;
+    }
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+    h1 { margin-bottom: 5px; }
+    .small { color: #555; font-size: 14px; margin-bottom: 20px; }
+    .section { margin-bottom: 25px; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    select, textarea, input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+    }
+    textarea { resize: vertical; }
+    .options label { font-weight: normal; margin-bottom: 5px; }
+    button {
+      background: #4f46e5;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h1>Daily Reflection</h1>
+  <p class="small">Understand today. Improve tomorrow. (≈ 3 minutes)</p>
+
+  <div class="section">
+    <label>1. How was your day overall?</label>
+    <select id="dayRating">
+      <option value="">-- Select --</option>
+      <option>Very productive</option>
+      <option>Productive</option>
+      <option>Average</option>
+      <option>Low productivity</option>
+      <option>Very unproductive</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <label>2. Did you follow your planned tasks today?</label>
+    <div class="options">
+      <label><input type="radio" name="plan" value="Mostly"> Mostly</label>
+      <label><input type="radio" name="plan" value="Partially"> Partially</label>
+      <label><input type="radio" name="plan" value="No"> No</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>3. What stopped you? (Select all)</label>
+    <div class="options">
+      <label><input type="checkbox" value="Mobile"> Mobile</label>
+      <label><input type="checkbox" value="Social Media"> Social Media</label>
+      <label><input type="checkbox" value="Laziness"> Laziness</label>
+      <label><input type="checkbox" value="Poor planning"> Poor planning</label>
+      <label><input type="checkbox" value="Mood issues"> Mood issues</label>
+      <label><input type="checkbox" value="Unexpected work"> Unexpected work</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>4. Where did you lose most time?</label>
+    <textarea id="timeLoss"></textarea>
+  </div>
+
+  <div class="section">
+    <label>5. Did you delay an important task knowingly?</label>
+    <div class="options">
+      <label><input type="radio" name="delay" value="Yes"> Yes</label>
+      <label><input type="radio" name="delay" value="No"> No</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>6. Why did you delay?</label>
+    <select id="delayReason">
+      <option value="">-- Select --</option>
+      <option>I'll do it later mindset</option>
+      <option>Task felt too big</option>
+      <option>Low motivation</option>
+      <option>Fear of difficulty</option>
+      <option>Comfort zone</option>
+      <option>Tired</option>
+    </select>
+  </div>
+
+  <div class="section">
+    <label>7. Did you START at least one important task?</label>
+    <div class="options">
+      <label><input type="radio" name="start" value="Yes"> Yes</label>
+      <label><input type="radio" name="start" value="No"> No</label>
+    </div>
+  </div>
+
+  <div class="section">
+    <label>8. One mistake you repeated today</label>
+    <textarea id="mistake"></textarea>
+  </div>
+
+  <div class="section">
+    <label>9. One thing you did well</label>
+    <textarea id="goodThing"></textarea>
+  </div>
+
+  <div class="section">
+    <label>10. One-line promise for tomorrow</label>
+    <input type="text" id="promise">
+  </div>
+
+  <button onclick="saveDiary()">Save Reflection</button>
+</div>
+
+<!-- Firebase -->
+<script type="module" src="firebase.js"></script>
+
+<script type="module">
+  import { collection, addDoc, Timestamp } 
+  from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
+  import { onAuthStateChanged } 
+  from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+  function getCheckedValues() {
+    return Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+      .map(cb => cb.value);
+  }
+
+  function getRadioValue(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  window.saveDiary = async function () {
+    const user = window.auth.currentUser;
+    if (!user) return alert("Not signed in");
+
+    const data = {
+      userId: user.uid,
+      date: new Date().toISOString().split("T")[0],
+      dayRating: document.getElementById("dayRating").value || null,
+      planFollowed: getRadioValue("plan"),
+      blockers: getCheckedValues(),
+      timeLoss: document.getElementById("timeLoss").value || null,
+      delayed: getRadioValue("delay"),
+      delayReason: document.getElementById("delayReason").value || null,
+      startedTask: getRadioValue("start"),
+      mistake: document.getElementById("mistake").value || null,
+      goodThing: document.getElementById("goodThing").value || null,
+      promise: document.getElementById("promise").value || null,
+      createdAt: Timestamp.now()
+    };
+
+    await addDoc(collection(window.db, "dailyDiary"), data);
+    alert("Reflection saved");
+    location.href = "main.html";
+  };
+
+  onAuthStateChanged(window.auth, (user) => {
+    if (!user) location.href = "signin.html";
+  });
+</script>
+
+</body>
+</html>

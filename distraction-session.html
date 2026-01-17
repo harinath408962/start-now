@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Distraction Session</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-bottom: 10px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+    }
+
+    button {
+      background: #4f46e5;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .timer {
+      font-size: 32px;
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #555;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+
+  <!-- STEP 1: Setup -->
+  <div id="setup">
+    <h2>Start Distraction Session</h2>
+    <p class="small">
+      Declare your intent before opening a distracting app.
+    </p>
+
+    <label>Which app are you about to open?</label>
+    <select id="app">
+      <option value="">Select app</option>
+      <option>YouTube</option>
+      <option>Instagram</option>
+      <option>Games</option>
+      <option>Other</option>
+    </select>
+
+    <label>Purpose</label>
+    <select id="purpose">
+      <option value="">Select purpose</option>
+      <option>Watching shorts / reels</option>
+      <option>Learning something specific</option>
+      <option>Feeling bored</option>
+      <option>Relaxing</option>
+    </select>
+
+    <label>Time limit (minutes)</label>
+    <select id="time">
+      <option value="">Select time</option>
+      <option value="5">5</option>
+      <option value="10">10</option>
+      <option value="15">15</option>
+      <option value="20">20</option>
+    </select>
+
+    <button onclick="startSession()">Start Session</button>
+  </div>
+
+  <!-- STEP 2: Timer -->
+  <div id="session" class="hidden">
+    <h2>Distraction Session Active</h2>
+    <p class="small">You committed to this time limit.</p>
+
+    <div class="timer" id="timer">00:00</div>
+
+    <p class="small">
+      When time ends, you will be redirected back to your tasks.
+    </p>
+  </div>
+
+  <!-- STEP 3: End -->
+  <div id="end" class="hidden">
+    <h2>Session Ended</h2>
+
+    <p class="small">
+      Your distraction session has ended.
+    </p>
+
+    <button onclick="goToMain()">Go Back to Tasks</button>
+  </div>
+
+</div>
+
+<script>
+  let countdown;
+
+  function startSession() {
+    const app = document.getElementById("app").value;
+    const purpose = document.getElementById("purpose").value;
+    const time = document.getElementById("time").value;
+
+    if (!app || !purpose || !time) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    // Save session data (for future analysis)
+    const sessions = JSON.parse(localStorage.getItem("distractionSessions")) || [];
+    sessions.push({
+      app,
+      purpose,
+      time,
+      startedAt: new Date().toISOString()
+    });
+    localStorage.setItem("distractionSessions", JSON.stringify(sessions));
+
+    document.getElementById("setup").classList.add("hidden");
+    document.getElementById("session").classList.remove("hidden");
+
+    startTimer(time * 60);
+  }
+
+  function startTimer(seconds) {
+    let remaining = seconds;
+
+    updateTimer(remaining);
+
+    countdown = setInterval(() => {
+      remaining--;
+      updateTimer(remaining);
+
+      if (remaining <= 0) {
+        clearInterval(countdown);
+        endSession();
+      }
+    }, 1000);
+  }
+
+  function updateTimer(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    document.getElementById("timer").innerText =
+      `${min.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+  }
+
+  function endSession() {
+    document.getElementById("session").classList.add("hidden");
+    document.getElementById("end").classList.remove("hidden");
+  }
+
+  function goToMain() {
+    window.location.href = "main.html";
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Delayed Start Warnings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .desc {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 700px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    .warning {
+      border-left: 5px solid #f97316;
+      padding-left: 15px;
+      margin-bottom: 20px;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      resize: vertical;
+    }
+
+    button {
+      background: #4f46e5;
+      color: white;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+<button onclick="location.href='main.html'">← Back to Main</button>
+
+<h1>Delayed Start Warnings</h1>
+<p class="desc">
+  These warnings help you notice when you delay starting important tasks.
+  You can customize the message to remind yourself of the consequences.
+</p>
+
+<div id="warningList"></div>
+
+<script>
+  const futureTasks = JSON.parse(localStorage.getItem("futureTasks")) || [];
+  const today = new Date().toISOString().split("T")[0];
+
+  function getDelayedTasks() {
+    return futureTasks.filter(task =>
+      task.startDate < today && !task.started
+    );
+  }
+
+  function saveMessage(index, textareaId) {
+    const msg = document.getElementById(textareaId).value.trim();
+    futureTasks[index].customWarning = msg;
+    localStorage.setItem("futureTasks", JSON.stringify(futureTasks));
+    alert("Warning message saved");
+  }
+
+  function renderWarnings() {
+    const list = document.getElementById("warningList");
+    list.innerHTML = "";
+
+    const delayedTasks = getDelayedTasks();
+
+    if (delayedTasks.length === 0) {
+      list.innerHTML = `
+        <div class="box">
+          <p class="small">No delayed tasks right now. Good job staying on track.</p>
+        </div>`;
+      return;
+    }
+
+    delayedTasks.forEach((task, i) => {
+      const daysDelayed =
+        Math.floor(
+          (new Date(today) - new Date(task.startDate)) /
+          (1000 * 60 * 60 * 24)
+        );
+
+      const defaultMsg =
+        `You planned to start this task earlier. Delaying may increase pressure.`;
+
+      const textareaId = `msg-${i}`;
+
+      const div = document.createElement("div");
+      div.className = "box warning";
+      div.innerHTML = `
+        <strong>${task.name}</strong><br>
+        <span class="small">
+          Planned start: ${task.startDate} |
+          Delayed by: ${daysDelayed} day(s)
+        </span>
+
+        <textarea id="${textareaId}" rows="3">
+${task.customWarning || defaultMsg}
+        </textarea>
+
+        <button onclick="saveMessage(${i}, '${textareaId}')">
+          Save Warning Message
+        </button>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  renderWarnings();
+</script>
+
+</body>
+</html>

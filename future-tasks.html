@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Future Tasks – Start Early</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 5px;
+    }
+
+    .desc {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0 15px 0;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      background: #4f46e5;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .task {
+      background: #eef2ff;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+<button onclick="location.href='main.html'">← Back to Main</button>
+
+<h1>Future Tasks</h1>
+<p class="desc">
+  Add important upcoming tasks and get reminded early so you don’t delay until the last moment.
+</p>
+
+<!-- Add Future Task -->
+<div class="box">
+  <h3>Add a Future Task</h3>
+
+  <input id="taskName" placeholder="Task name (e.g., DSA Exam)">
+  
+  <textarea id="taskDesc" rows="3"
+    placeholder="Brief description (syllabus, expectations, notes)"></textarea>
+
+  <label>Planned Start Date</label>
+  <input type="date" id="startDate">
+
+  <label>Final Date</label>
+  <input type="date" id="finalDate">
+
+  <label>Reminder Frequency</label>
+  <select id="frequency">
+    <option value="">Select frequency</option>
+    <option value="every-6-hours">Every 6 hours</option>
+    <option value="every-12-hours">Every 12 hours</option>
+    <option value="daily">Daily</option>
+    <option value="specific-days">Specific days (later)</option>
+  </select>
+
+  <button onclick="addFutureTask()">Save Future Task</button>
+</div>
+
+<!-- List Future Tasks -->
+<div class="box">
+  <h3>Your Future Tasks</h3>
+  <div id="taskList"></div>
+</div>
+
+<script>
+  let futureTasks = JSON.parse(localStorage.getItem("futureTasks")) || [];
+
+  function addFutureTask() {
+    const name = taskName.value.trim();
+    const desc = taskDesc.value.trim();
+    const start = startDate.value;
+    const end = finalDate.value;
+    const freq = frequency.value;
+
+    if (!name || !start || !end || !freq) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    const task = {
+      name,
+      desc,
+      startDate: start,
+      finalDate: end,
+      frequency: freq,
+      createdAt: new Date().toISOString()
+    };
+
+    futureTasks.push(task);
+    localStorage.setItem("futureTasks", JSON.stringify(futureTasks));
+
+    taskName.value = "";
+    taskDesc.value = "";
+    startDate.value = "";
+    finalDate.value = "";
+    frequency.value = "";
+
+    renderFutureTasks();
+  }
+
+  function renderFutureTasks() {
+    const list = document.getElementById("taskList");
+    list.innerHTML = "";
+
+    if (futureTasks.length === 0) {
+      list.innerHTML = "<p class='small'>No future tasks added yet.</p>";
+      return;
+    }
+
+    futureTasks.forEach(task => {
+      const div = document.createElement("div");
+      div.className = "task";
+      div.innerHTML = `
+        <strong>${task.name}</strong><br>
+        <span class="small">${task.desc || "No description"}</span><br><br>
+        <span class="small">
+          Start: ${task.startDate} | Final: ${task.finalDate}<br>
+          Reminder: ${task.frequency}
+        </span>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  renderFutureTasks();
+</script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Task</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+    }
+
+    .moods button {
+      margin: 5px;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 5px;
+      background: #e0e7ff;
+      cursor: pointer;
+    }
+
+    .moods button.active {
+      background: #4f46e5;
+      color: white;
+    }
+
+    button.save {
+      background: #4f46e5;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Add Task</h2>
+
+  <input id="taskName" placeholder="Task name">
+  <input id="taskStart" placeholder="First small step">
+  <input id="taskTime" type="number" placeholder="Expected time (minutes)">
+
+  <p>Suitable mood(s):</p>
+  <div class="moods" id="moodSelector">
+    <button type="button" onclick="toggleMood(this,'Focused')">Focused</button>
+    <button type="button" onclick="toggleMood(this,'Low Energy')">Low Energy</button>
+    <button type="button" onclick="toggleMood(this,'Bored')">Bored</button>
+  </div>
+
+  <button class="save" onclick="saveTask()">Save Task</button>
+</div>
+
+<script>
+  let selectedMoods = [];
+
+  // ✅ Auto-select mood from main page
+  const currentMood = localStorage.getItem("currentMood");
+  if (currentMood) {
+    document.querySelectorAll("#moodSelector button").forEach(btn => {
+      if (btn.innerText === currentMood) {
+        btn.classList.add("active");
+        selectedMoods.push(currentMood);
+      }
+    });
+  }
+
+  function toggleMood(btn, mood) {
+    if (selectedMoods.includes(mood)) {
+      selectedMoods = selectedMoods.filter(m => m !== mood);
+      btn.classList.remove("active");
+    } else {
+      selectedMoods.push(mood);
+      btn.classList.add("active");
+    }
+  }
+
+  function saveTask() {
+    const name = taskName.value.trim();
+    const start = taskStart.value.trim();
+    const time = taskTime.value;
+
+    if (!name || !start || !time || selectedMoods.length === 0) {
+      alert("Fill all fields and select at least one mood.");
+      return;
+    }
+
+    const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    tasks.push({
+      name,
+      start,
+      time,
+      moods: selectedMoods,
+      createdAt: new Date().toISOString()
+    });
+
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    // Optional: clear currentMood
+    localStorage.removeItem("currentMood");
+
+    window.location.href = "main.html";
+  }
+</script>
+
+</body>
+</html>

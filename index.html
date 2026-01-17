@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Start Now – A Procrastination Assistant</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 50px 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 42px;
+      color: #222;
+    }
+    h2 {
+      font-weight: normal;
+      color: #555;
+      margin-bottom: 30px;
+    }
+    .box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      margin-top: 30px;
+    }
+    .steps {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .step {
+      width: 250px;
+      margin: 10px;
+    }
+    button {
+      margin-top: 30px;
+      padding: 12px 30px;
+      font-size: 16px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #4338ca;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Stop Waiting for Motivation.</h1>
+  <h1>Start Now.</h1>
+
+  <h2>
+    A procrastination-focused learning assistant<br>
+    designed for students aged 18–24
+  </h2>
+
+  <div class="box">
+    <p>
+      Most students don’t fail because they lack resources.  
+      They fail because they **delay starting**.
+    </p>
+
+    <p>
+      This platform helps you overcome procrastination by focusing on
+      <strong>small starts, awareness, and daily reflection</strong> —  
+      not pressure or unrealistic schedules.
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <h3>1. Recognize your state</h3>
+        <p>
+          Are you bored, tired, stressed, or focused?
+          Your state decides the next step.
+        </p>
+      </div>
+
+      <div class="step">
+        <h3>2. Start small</h3>
+        <p>
+          No full plans. No overload.  
+          Just one small, doable action.
+        </p>
+      </div>
+
+      <div class="step">
+        <h3>3. Reflect & improve</h3>
+        <p>
+          Understand why you delayed today,
+          so tomorrow becomes easier.
+        </p>
+      </div>
+    </div>
+
+    <button onclick="goToSignIn()">Get Started</button>
+  </div>
+
+  <div class="box">
+    <h3>Example Case</h3>
+    <p>
+      A student plans to study at 7 PM but keeps delaying.<br><br>
+      Instead of forcing a long session, the system suggests:<br>
+      <strong>“Start with 10 minutes.”</strong><br><br>
+      The student starts — and often continues.
+    </p>
+  </div>
+</div>
+
+<script>
+  function goToSignIn() {
+    window.location.href = "signin.html";
+  }
+</script>
+
+</body>
+</html>
